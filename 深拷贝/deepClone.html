@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // function deepClone(originValue, map = new WeakMap()) {
+        //     // 判断是否是一个Set类型
+        //     if (originValue instanceof Set) {
+        //         return new Set([...originValue])
+        //     }
+
+        //     // 判断是否是一个Map类型
+        //     if (originValue instanceof Map) {
+        //         return new Map([...originValue])
+        //     }
+
+        //     // 判断如果是Symbol的value, 那么创建一个新的Symbol
+        //     if (typeof originValue === "symbol") {
+        //         return Symbol(originValue.description)
+        //     }
+
+        //     // 判断如果是函数类型, 那么直接使用同一个函数
+        //     if (typeof originValue === "function") {
+        //         return originValue
+        //     }
+
+        //     // 判断传入的originValue是否是一个对象类型
+        //     if (!isObject(originValue)) {
+        //         return originValue
+        //     }
+        //     if (map.has(originValue)) {
+        //         return map.get(originValue)
+        //     }
+
+        //     // 判断传入的对象是数组, 还是对象
+        //     const newObject = Array.isArray(originValue) ? [] : {}
+        //     map.set(originValue, newObject)
+        //     for (const key in originValue) {
+        //         newObject[key] = deepClone(originValue[key], map)
+        //     }
+
+        //     // 对Symbol的key进行特殊的处理
+        //     const symbolKeys = Object.getOwnPropertySymbols(originValue)
+        //     for (const sKey of symbolKeys) {
+        //         // const newSKey = Symbol(sKey.description)
+        //         newObject[sKey] = deepClone(originValue[sKey], map)
+        //     }
+
+        //     return newObject
+        // }
+        function deepClone(target, weakmap = new WeakMap) {
+            if (target instanceof Set) {
+                return new Set([...target])
+            }
+            if (target instanceof Map) {
+                return new Map([...target])
+            }
+            if (target instanceof Symbol) {
+                return Symbol(target.description)
+            }
+            if (target instanceof RegExp) return RegExp(target)
+            if (target instanceof Date) return Date(target)
+            if (target == null || typeof (target) !== 'object') {
+                return target
+            }
+            const cloneObj = Array.isArray(target) ? [] : {}
+            if (weakmap.get(target)) return weakmap.get(target)
+            weakmap.set(target, cloneObj)
+            for (let item in target) {
+                cloneObj[item] = deepClone(target[item], weakmap)
+                //    不能遍历到Symbol
+            }
+            const symbolKeys = Object.getOwnPropertySymbols(target)
+            for (const symbolkey of symbolKeys) {
+                cloneObj[symbolkey] = deepClone(target[symbolkey], weakmap)
+            }
+            return cloneObj
+        }
+        let s1 = Symbol('aaa');
+        let s2 = Symbol('bbb');
+
+        let obj = {
+            name: 'xiaohuang',
+            age: 23,
+            [s1]: 'woshi s1',
+            s2: [s2],
+            arr: ['a', 'b', 'c'],
+            set: new Set([1, 2, 3, 4]),
+            map: new Map([["aaa", "abc"], ["bbb", "cba"]])
+        }
+        obj['ob1'] = obj
+        let obj1 = deepClone(obj)
+        console.log(obj1)
+    </script>
+</body>
+
+</html>
